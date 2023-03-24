@@ -30,6 +30,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity  implements TransactionEvents{
@@ -130,15 +132,15 @@ public class MainActivity extends AppCompatActivity  implements TransactionEvent
     public void onButtonClick(View v)
     {
 
-        testHttpClient();
-//        new Thread(() -> {
-//            try {
-//                byte[] trd = stringToHex("9F0206000000000100");
-//                boolean ok = transaction(trd);
-//            } catch (Exception ex){
-//
-//            }
-//        }).start();
+       // testHttpClient();
+        new Thread(() -> {
+            try {
+                byte[] trd = stringToHex("9F0206000000000100");
+                boolean ok = transaction(trd);
+            } catch (Exception ex){
+
+            }
+        }).start();
 
     }
 
@@ -156,7 +158,7 @@ public class MainActivity extends AppCompatActivity  implements TransactionEvent
         new Thread(() -> {
             try {
                 HttpURLConnection uc = (HttpURLConnection)
-                        (new URL("https://www.wikipedia.org").openConnection());
+                        (new URL("http://10.0.2.2:8080/api/v1/title").openConnection());
                 InputStream inputStream = uc.getInputStream();
                 String html = IOUtils.toString(inputStream);
                 String title = getPageTitle(html);
@@ -172,14 +174,14 @@ public class MainActivity extends AppCompatActivity  implements TransactionEvent
     }
 
     private String getPageTitle(String html) {
-        int pos = html.indexOf("<title");
-        String p="not found";
-        if (pos >= 0)
-        {
-            int pos2 = html.indexOf("<", pos + 1);
-            if (pos >= 0)
-                p = html.substring(pos + 7, pos2);
-        }
+
+        Pattern pattern = Pattern.compile("<title>(.+?)</title>", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(html);
+        String p;
+        if (matcher.find())
+            p = matcher.group(1);
+        else
+            p = "Not found";
         return p;
     }
 
